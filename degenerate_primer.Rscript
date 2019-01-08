@@ -1,0 +1,52 @@
+#!/usr/bin/env Rscript
+
+##Tristan Lefebure
+##Tristan.Lefebure@univ-lyon1.fr
+##9 Jan 2018
+
+##An R script to produce all the possible degenerated primers
+
+args <- commandArgs(trailing = TRUE)
+
+if (length(args)<1) {
+  stop("Usage: degenerate_primer.Rscript SeqName sequence\n", call.=FALSE)
+}
+
+seqName <- args[1]
+primer.seq <- args[2]
+
+IUPAC <- list()
+IUPAC[['A']] <- 'A'
+IUPAC[['T']] <- 'T'
+IUPAC[['C']] <- 'C'
+IUPAC[['G']] <- 'G'
+IUPAC[['R']] <- c('A','G')
+IUPAC[['Y']] <- c('C','T')
+IUPAC[['M']] <- c('A','C')
+IUPAC[['K']] <- c('G','T')
+IUPAC[['S']] <- c('C','G')
+IUPAC[['W']] <- c('A','T')
+IUPAC[['H']] <- c('A','C','T')
+IUPAC[['B']] <- c('C','G','T')
+IUPAC[['V']] <- c('A','C','G')
+IUPAC[['D']] <- c('A','G','T')
+IUPAC[['N']] <- c('A','C','G','T')
+
+primer.v <- unlist(strsplit(primer.seq, split=''))
+
+primer.l <- list()
+n <- 0
+for(i in primer.v) {
+	n <- n+1
+	primer.l[[n]] <- IUPAC[[i]]
+}
+
+tempm <- expand.grid(primer.l)
+
+deg.seq   <- apply(tempm, 1, function(x) paste(x, collapse=''))
+seq.names <- paste(seqName, '_', 1:length(deg.seq), sep='')
+
+fasta <- paste('>', seq.names, "\n", deg.seq, sep='')
+fileName <- paste(seqName, '_degenerated.fas', sep='')
+
+write(fasta, file=fileName, ncolumns=1)
